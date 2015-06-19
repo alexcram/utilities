@@ -47,7 +47,7 @@
 - Copy wso2 product .zip file onto box (I use SCP. Also notw the `~/Desktop` is just where the file was on my local machine, this may vary): `scp -i ~/.ssh/{pem-file-name}.pem ~/Desktop/wso2as-5.2.1.zip ubuntu@{ip address}:/tmp`
 - Move wso2 zip file to root's home directory: `sudo mv /tmp/wso2as-5.2.1.zip ~/`
 - Unzip in "/usr/lib" Directory: `sudo unzip wso2as-5.2.1.zip -d /usr/lib`
-- Create the "appserver" bash script in the "/usr/lib/wso2as-5.2.1/bin" directory (this file is inside the revlink google drive): `sudo vi appserver.sh`
+- Create the "appserver" bash script in the "/usr/lib/wso2as-5.2.1/bin" directory: `sudo vi appserver.sh`
 - Make file executable: ` sudo chmod 777 appserver.sh`
 - Create symbolic link to "/etc/init.d" directory: `sudo ln -snf /usr/lib/wso2as-5.2.1/bin/appserver.sh /etc/init.d/appserver`
 - Add to services: `sudo update-rc.d appserver defaults`
