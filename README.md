@@ -106,3 +106,33 @@
   * ` /* Server parameters */`
   * `$cfg['Servers'][$i]['host'] = '{insert rds endpoint link here}';`
  - Refresh phpmyadmin, enter RDS user and pass and you should be good!
+
+**Configure wso2 for SSL**
+
+*1) Create Server's CSR Key*
+Create key and put it in the `etc/ssl/{serverNicknameFolder}` directory. Where {serverNicknameFolder} is a new directory you create.
+`openssl req -new -newkey rsa:2048 -nodes -keyout {yourdomain}.key -out {yourdomain}.csr`
+
+*2)  Concatenate Tomcat certificates*
+Download tomcat certs from GoDaddy, transfer them to the server, unzip them and concatenate them.
+`sudo cat 914b05b0854f0556.crt gdig2.crt gd_bundle-g2-g1.crt > ~/sslcombined.crt`
+
+*3) Create pkcs12 file*
+When creating this file, it will ask you to supply a password. Use `wso2carbon`.
+sudo openssl pkcs12 -export -inkey /etc/ssl/{serverNicknameFolder}/{yourdomain}.key -in ~/sslcombined.crt -out {yourdomain}.pkcs12
+
+*4) Create the NEW keystore*
+We will be creating this keystore with the private pkcs12 key created in step 3. Once this is complete, change to the wso2 security directory: `/usr/lib/wso2as-5.2.1/repository/resources/security/`
+
+`keytool -importkeystore -srckeystore ~/{yourdomain}.pkcs12 -destkeystore /usr/lib/wso2as-5.2.1/repository/resources/security/wso2carbon-new.jks -srcstoretype pkcs12 -deststoretype jks -srcstorepass wso2carbon -deststorepass wso2carbon`
+
+*5) Import the new private store and overwrite the old*
+`keytool -importkeystore -srckeystore wso2carbon-new.jks -destkeystore wso2carbon.jks -srcstoretype JKS -deststoretype JKS -srcstorepass wso2carbon -deststorepass wso2carbon -noprompt`
+
+*6) Copt the agent store over the client keystore*
+`sudo cp wso2carbon.jks client-truststore.jks`
+
+*7) Restart the server*
+`reboot`
+
+* Remember it takes awhile for java and wso2 to boot up upon reboot.
